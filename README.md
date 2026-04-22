@@ -63,3 +63,15 @@ adb tcpip 5555
 adb connect <PHONE_IP>:5555
 adb install -r apps/mobile-pwa/android/app/build/outputs/apk/debug/app-debug.apk
 ```
+
+
+## 5) GitHub APK build
+
+Workflow fajl: `.github/workflows/android-apk.yml`
+
+Trigger opcije:
+- automatski na `push` u `main` (ako se mijenja `apps/mobile-pwa/**`, `scripts/android/**` ili workflow)
+- ručno preko **Actions > Android APK Build > Run workflow**
+
+Artifact naziv u GitHub Actions:
+- `agentixos-debug-apk`
