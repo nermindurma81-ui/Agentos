@@ -75,3 +75,18 @@ Trigger opcije:
 
 Artifact naziv u GitHub Actions:
 - `agentixos-debug-apk`
+
+
+## 6) APK troubleshoot (ako "ništa ne radi")
+
+Najčešći problem: APK pokušava da se spoji na pogrešan backend URL.
+
+- Emulator: koristi `http://10.0.2.2:8080`
+- Fizički telefon: koristi LAN IP računara npr. `http://192.168.1.10:8080`
+
+U aplikaciji:
+1. Klikni `☰`
+2. Upiši `Gateway URL`
+3. Klikni `Save + Reconnect`
+
+Ako koristiš fizički telefon, backend/gateway moraju biti dostupni na mreži (ne samo localhost).
