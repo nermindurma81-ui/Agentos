@@ -18,7 +18,7 @@ Servisi:
 
 Preduvjeti na host mašini:
 - Node.js 20+
-- Java 17
+- Java 21
 - Android SDK + `adb` (platform-tools)
 - Export varijabla: `ANDROID_HOME` ili `ANDROID_SDK_ROOT`
 

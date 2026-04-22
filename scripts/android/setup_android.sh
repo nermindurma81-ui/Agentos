@@ -5,6 +5,21 @@ ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 APP_DIR="$ROOT_DIR/apps/mobile-pwa"
 ANDROID_DIR="$APP_DIR/android"
 
+require_java21() {
+  if ! command -v java >/dev/null 2>&1; then
+    echo "Java nije instalirana. Potreban je JDK 21." >&2
+    exit 1
+  fi
+  local major
+  major=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | awk -F. '{print $1}')
+  if [ "$major" -lt 21 ]; then
+    echo "Detektovan JDK $major. Potreban je JDK 21+." >&2
+    exit 1
+  fi
+}
+
+require_java21
+
 cd "$APP_DIR"
 
 npm install
