@@ -2,35 +2,46 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
-import { Terminal } from 'xterm';
-import { FitAddon } from 'xterm-addon-fit';
 
 const gateway = process.env.NEXT_PUBLIC_GATEWAY_URL || 'http://localhost:8080';
 
 export default function Home() {
   const [messages, setMessages] = useState<string[]>([]);
   const [input, setInput] = useState('');
-  const [heartbeat, setHeartbeat] = useState<'green'|'amber'|'red'>('red');
+  const [heartbeat, setHeartbeat] = useState<'green' | 'amber' | 'red'>('red');
   const termRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const socket = io(gateway);
-    socket.on('model_heartbeat', (d) => setHeartbeat(d.status || 'red'));
-    socket.on('terminal:stdout', (data) => terminal?.write(String(data)));
+    let terminal: any;
+    let socket: any;
 
-    const terminal = new Terminal({ cols: 80, rows: 10, theme: { background: '#111827' } });
-    const fit = new FitAddon();
-    terminal.loadAddon(fit);
-    if (termRef.current) {
-      terminal.open(termRef.current);
-      fit.fit();
-      terminal.writeln('AgentixOS terminal connected');
-    }
-    terminal.onData((data) => socket.emit('terminal:stdin', data));
+    const boot = async () => {
+      const [{ Terminal }, { FitAddon }] = await Promise.all([
+        import('xterm'),
+        import('xterm-addon-fit'),
+      ]);
+
+      socket = io(gateway);
+      terminal = new Terminal({ cols: 80, rows: 10, theme: { background: '#111827' } });
+      const fit = new FitAddon();
+      terminal.loadAddon(fit);
+
+      socket.on('model_heartbeat', (d: any) => setHeartbeat(d.status || 'red'));
+      socket.on('terminal:stdout', (data: any) => terminal?.write(String(data)));
+
+      if (termRef.current) {
+        terminal.open(termRef.current);
+        fit.fit();
+        terminal.writeln('AgentixOS terminal connected');
+      }
+      terminal.onData((data: string) => socket.emit('terminal:stdin', data));
+    };
+
+    void boot();
 
     return () => {
-      socket.close();
-      terminal.dispose();
+      if (socket) socket.close();
+      if (terminal) terminal.dispose();
     };
   }, []);
 
@@ -51,18 +62,31 @@ export default function Home() {
       <header className="flex items-center justify-between mb-3">
         <button className="px-2 py-1 bg-zinc-800 rounded">☰</button>
         <div className="text-sm">AgentixOS</div>
-        <div className={`w-3 h-3 rounded-full ${heartbeat === 'green' ? 'bg-green-400' : heartbeat === 'amber' ? 'bg-yellow-400' : 'bg-red-400'}`} />
+        <div
+          className={`w-3 h-3 rounded-full ${
+            heartbeat === 'green' ? 'bg-green-400' : heartbeat === 'amber' ? 'bg-yellow-400' : 'bg-red-400'
+          }`}
+        />
       </header>
 
       <section className="space-y-2 mb-3">
         {messages.map((m, idx) => (
-          <div key={idx} className="bg-zinc-900 p-2 rounded text-sm break-all">{m}</div>
+          <div key={idx} className="bg-zinc-900 p-2 rounded text-sm break-all">
+            {m}
+          </div>
         ))}
       </section>
 
       <div className="flex gap-2 mb-4">
-        <input value={input} onChange={(e) => setInput(e.target.value)} className="flex-1 bg-zinc-900 p-2 rounded" placeholder="Poruka..." />
-        <button onClick={sendMessage} className="bg-blue-600 px-3 rounded">Send</button>
+        <input
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          className="flex-1 bg-zinc-900 p-2 rounded"
+          placeholder="Poruka..."
+        />
+        <button onClick={sendMessage} className="bg-blue-600 px-3 rounded">
+          Send
+        </button>
       </div>
 
       <section>

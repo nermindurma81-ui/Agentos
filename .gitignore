@@ -5,3 +5,5 @@ __pycache__/
 .next/
 dist/
 *.pyc
+apps/mobile-pwa/android/
+apps/mobile-pwa/out/

@@ -3,12 +3,26 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 APP_DIR="$ROOT_DIR/apps/mobile-pwa"
+ANDROID_DIR="$APP_DIR/android"
+LOCAL_PROPS="$ANDROID_DIR/local.properties"
 
 cd "$APP_DIR"
 
 npm install
 npm run build
 npx cap sync android
+
+if [ ! -f "$LOCAL_PROPS" ]; then
+  SDK_PATH="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-$HOME/Android/Sdk}}"
+  if [ -d "$SDK_PATH" ]; then
+    cat > "$LOCAL_PROPS" <<PROP
+sdk.dir=$SDK_PATH
+PROP
+  else
+    echo "Android SDK not found. Define ANDROID_HOME or ANDROID_SDK_ROOT." >&2
+    exit 2
+  fi
+fi
 
 cd android
 ./gradlew assembleDebug
