@@ -55,6 +55,14 @@ jobs:
         run: |
           echo "sdk.dir=$ANDROID_HOME" > android/local.properties
 
+      - name: Patch Gradle Kotlin duplicate classes
+        run: |
+          cat >> android/app/build.gradle <<'GRADLE'
+          configurations.all {
+              exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8'
+          }
+          GRADLE
+
       - name: Build debug APK
         run: |
           cd android

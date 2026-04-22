@@ -27,6 +27,16 @@ npm install
 npm run build
 npx cap sync android
 
+
+APP_GRADLE="$ANDROID_DIR/app/build.gradle"
+if ! grep -q "kotlin-stdlib-jdk8" "$APP_GRADLE"; then
+  cat >> "$APP_GRADLE" <<'GRADLE'
+configurations.all {
+    exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8'
+}
+GRADLE
+fi
+
 if [ ! -f "$LOCAL_PROPS" ]; then
   SDK_PATH="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-$HOME/Android/Sdk}}"
   if [ -d "$SDK_PATH" ]; then
